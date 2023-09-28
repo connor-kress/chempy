@@ -2,6 +2,8 @@ from data.elements import ATOMIC_NUMS
 from typing import Self
 import numpy as np
 
+NUMBER_OF_ELEMENTS = len(ATOMIC_NUMS)
+
 
 class Element:
     _all_elements: dict[str, Self] = {}
@@ -14,7 +16,7 @@ class Element:
         self.symbol = symbol
         self.number = ATOMIC_NUMS[symbol]
 
-        temp = np.zeros(len(ATOMIC_NUMS), dtype=int)
+        temp = np.zeros(NUMBER_OF_ELEMENTS, dtype=int)
         temp[self.number-1] = 1
         self.vector = temp
     
