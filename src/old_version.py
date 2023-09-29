@@ -122,7 +122,7 @@ def float_gcd(a, b, rtol=1e-05, atol=1e-08):
 
 def solve(system):
     results = null_space(system).T
-
+    
     for i, test in enumerate(results.copy()):
         if np.any(np.isclose(test, 0)):
             continue
