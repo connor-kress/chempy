@@ -122,13 +122,13 @@ def float_gcd(a, b, rtol=1e-05, atol=1e-08):
 
 def solve(system):
     results = null_space(system).T
-    
-    for i, test in enumerate(results.copy()):
-        if np.any(np.isclose(test, 0)):
+
+    for result in results:
+        if np.any(np.isclose(result, 0)):
             continue
-        test /= np.abs(test)
-        if np.allclose(test, 1) or np.allclose(test, -1):
-            ratios = results[i]
+        signs = result / np.abs(result)
+        if np.allclose(signs, 1) or np.allclose(signs, -1):
+            ratios = result
             break
     else:
         raise Exception('No solution found.')
