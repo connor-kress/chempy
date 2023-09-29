@@ -37,3 +37,9 @@ class Element:
     
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}('{self.symbol}')"
+    
+    def __hash__(self):
+        """`Element`s can be hashed with their ids as there is only ever one
+        instance per unique type of element.
+        """
+        return id(self)
