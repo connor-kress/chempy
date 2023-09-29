@@ -2,7 +2,6 @@ from data.elements import ATOMIC_NUMS
 from collections import Counter
 from element import Element
 import numpy as np
-import numpy.typing as npt
 
 NUMBER_OF_ELEMENTS = len(ATOMIC_NUMS)
 
