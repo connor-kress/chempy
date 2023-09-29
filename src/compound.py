@@ -50,7 +50,7 @@ class Compound:
         return self.elements == other.elements
 
     @staticmethod
-    def parse_from_string(compound_string) -> Self:
+    def parse_from_string(compound_string: str) -> Self:
         """Parses a given string into a `Compound` instance."""
         compound_string = compound_string.replace(' ', '')
         if not all(
@@ -137,12 +137,10 @@ class Compound:
             if token in LEFT_DELS:
                 close_idx = get_closing_index(i+1, token)
                 inside = Compound._parse_from_tokens(tokens[i+1:close_idx])
-                if (close_idx + 1 <= len(tokens) - 1
+                if (close_idx+1 <= len(tokens)-1
                     and isinstance(tokens[close_idx+1], int)):
                     mul = tokens[close_idx+1]
-                    for e in inside.keys():
-                        inside[e] = inside[e] * mul
-                    elements += inside
+                    elements += Counter({e: n*mul for e, n in inside.items()})
                     i = close_idx + 2
                 else:
                     elements += inside
