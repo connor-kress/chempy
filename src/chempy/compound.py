@@ -38,7 +38,7 @@ class Compound:
         return f"""
             {self.__class__.__name__}(
                 {self.elements},
-                {'None' if self.string is None else f"'{self.string}'"}
+                {'None' if self.string is None else f"'{self.string}'"},
             )
         """
     
