@@ -143,7 +143,7 @@ def solve(system):
     solution = ratios / gcd
     
     if not np.allclose(solution, np.round(solution)):
-        raise ValueError(f'Invalid Equation. Found solution {solution}.')
+        raise ValueError(f'Unknown error. Found solution {solution}.')
     
     return np.round(solution).astype(int)
 
