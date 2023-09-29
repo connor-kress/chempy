@@ -51,6 +51,7 @@ class Compound:
 
     @staticmethod
     def parse_from_string(compound_string) -> Self:
+        """Parses a given string into a `Compound` instance."""
         compound_string = compound_string.replace(' ', '')
         if not all(
             c.isalnum()
@@ -74,6 +75,7 @@ class Compound:
     
     @staticmethod
     def _parse_to_tokens(compound_string: str) -> list[Element | str | int]:
+        """Tokenizes a string representing a compound for further parsing."""
         tokens = []
         num_str = ''
         lower = ''
@@ -109,7 +111,11 @@ class Compound:
     def _parse_from_tokens(
         tokens: list[Element | str | int]
     ) -> Counter[Element]:
+        """Parses a list of tokens into a standardized `Counter` of the
+        `Element`s represented.
+        """
         def get_closing_index(start: int, l_del: str) -> int:
+            """Returns the closing index of an opened delimeter."""
             r_del = RIGHT_DELS[LEFT_DELS.index(l_del)]
             count = 0
             for i in range(start, len(tokens)):
@@ -144,7 +150,7 @@ class Compound:
                 continue
             if token in RIGHT_DELS:
                 raise ValueError('Invalid equation syntax (delimeters).')
-            if isinstance(token, Element):  # element
+            if isinstance(token, Element):
                 if i+1 < len(tokens) and isinstance(tokens[i+1], int):
                     elements[token] += tokens[i+1]
                 else:
