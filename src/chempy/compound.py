@@ -10,7 +10,7 @@ RIGHT_DELS = [')', ']', '}']
 
 
 class Compound:
-    def __init__(self, elements: Counter[Element], string: str=None):
+    def __init__(self, elements: Counter[Element], string: str = None):
         """Constructs a compound from a number of `Element`s and an optional
         `string` to refer to the `Compound` by.
         """
