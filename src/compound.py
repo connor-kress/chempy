@@ -130,6 +130,9 @@ class Compound:
                 f'"{l_del}" opened at i={start-1} was never closed.'
             )
 
+        if isinstance(tokens[0], int):
+            raise ValueError('Invalid equation syntax.')
+        
         elements = Counter()
         i = 0
         while i < len(tokens):
