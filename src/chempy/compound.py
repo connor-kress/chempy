@@ -1,6 +1,6 @@
 from data.elements import ATOMIC_NUMS
 from collections import Counter
-from chempy.element import Element
+from element import Element
 from typing import Self
 import numpy as np
 
