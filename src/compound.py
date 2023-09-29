@@ -60,12 +60,12 @@ class Compound:
             for c in compound_string
         ):
             raise ValueError(
-                f'Invalid character found while parsing {compound_string}.'
+                f'Invalid character found while parsing "{compound_string}".'
             )
         if (sum(c in LEFT_DELS for c in compound_string)
             != sum(c in RIGHT_DELS for c in compound_string)):
             raise ValueError(
-                f'Unequal left and right delimiters in {compound_string}.'
+                f'Unequal left and right delimiters in "{compound_string}".'
             )
         
         tokens = Compound._parse_to_tokens(compound_string)
