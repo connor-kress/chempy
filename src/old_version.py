@@ -45,6 +45,8 @@ def parse_to_fragments(compound: str) -> list[str | int]:
             lower = ''
         else:
             frags.insert(0, c)
+    if num_str or lower:
+        raise ValueError('Invalid input syntax')
     return frags
 
 
@@ -119,26 +121,31 @@ def float_gcd(a, b, rtol=1e-05, atol=1e-08):
 
 
 def solve(system):
-    ratios = null_space(system).T
-    if len(ratios) != 1:
-        raise ValueError('No solution found.')
-    ratios = ratios[0]
-    sol = ratios / np.min(np.abs(ratios))
-    if np.any(sol < 0):
-        sol *= -1
+    results = null_space(system).T
+    if len(results) == 0:
+        raise ValueError(f'No solution found.')
     
-    gcd = sol[0]
-    for num in sol[1:]:
+    for i, test in enumerate(results.copy()):
+        if np.any(np.isclose(test, 0)):
+            continue
+        test /= np.abs(test)
+        if np.allclose(test, 1) or np.allclose(test, -1):
+            ratios = results[i]
+            break
+    else:
+        raise ValueError('No solution found (with all positive coefecients).')
+    if np.any(ratios < 0):
+        ratios *= -1
+    
+    gcd = ratios[0]
+    for num in ratios[1:]:
         gcd = float_gcd(gcd, num)
-    sol /= np.round(gcd, 9)
+    solution = ratios / gcd
     
-    if np.any(sol < 0):
-        raise ValueError(f'Invalid Equation. Found solution {sol}.')
+    if not np.allclose(solution, np.round(solution)):
+        raise ValueError(f'Invalid Equation. Found solution {solution}.')
     
-    sol_int = np.round(sol).astype(int)
-    if not np.allclose(sol, sol_int):
-        raise ValueError(f'Invalid Equation. Found solution {sol}.')
-    return sol_int
+    return np.round(solution).astype(int)
 
 
 def get_equation_with_coefs(reactant_strs: list[str], product_strs: list[str], coefs: list[int]) -> str:
