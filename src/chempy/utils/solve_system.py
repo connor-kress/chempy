@@ -1,4 +1,4 @@
-from gcd import float_gcd
+from .gcd import float_gcd
 from scipy.linalg import null_space
 import numpy as np
 

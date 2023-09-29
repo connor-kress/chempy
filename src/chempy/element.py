@@ -1,4 +1,4 @@
-from data.elements import ATOMIC_NUMS
+from .data.elements import ATOMIC_NUMS
 from typing import Self
 import numpy as np
 
