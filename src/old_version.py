@@ -113,11 +113,13 @@ def compound_to_elements(compound: str) -> Counter[str]:
     return Counter(elements)
 
 
-def float_gcd(a, b, rtol=1e-05, atol=1e-08):
-    t = min(abs(a), abs(b))
-    while abs(b) > rtol * t + atol:
-        a, b = b, a % b
-    return a
+def float_gcd(nums, rtol=1e-05, atol=1e-08):
+    gcd = nums[0]
+    for num in nums[1:]:
+        tol = rtol*min(abs(gcd), abs(num)) + atol
+        while abs(num) > tol:
+            gcd, num = num, gcd % num
+    return gcd
 
 
 def solve(system):
@@ -128,18 +130,12 @@ def solve(system):
             continue
         signs = result / np.abs(result)
         if np.allclose(signs, 1) or np.allclose(signs, -1):
-            ratios = result
+            ratios = result * signs[0]
             break
     else:
         raise Exception('No solution found.')
     
-    if np.any(ratios < 0):
-        ratios *= -1
-    
-    gcd = ratios[0]
-    for num in ratios[1:]:
-        gcd = float_gcd(gcd, num)
-    solution = ratios / gcd
+    solution = ratios / float_gcd(ratios)
     
     if not np.allclose(solution, np.round(solution)):
         raise ValueError(f'Unknown error. Found solution {solution}.')
@@ -217,8 +213,8 @@ def main() -> None:
     # if len(sys.argv) != 2:
     #     print('Please provide one argument in the form "A + B -> C".')
     #     return
-    # equation = sys.argv[1]  # 'Al2(SO4)3 + Ca(OH)2 -> Al(OH)3 + CaSO4'
-    equation = 'Al2(SO4)3 + Ca(OH)2 -> Al(OH)3 + CaSO4'
+    # equation = sys.argv[1]
+    equation = 'KNO3 + C12H22O11 -> N2 + CO2 + H2O + K2CO3'
     try:
         result = get_balanced_equation(equation)
     except Exception as e:
