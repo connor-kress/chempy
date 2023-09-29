@@ -122,9 +122,7 @@ def float_gcd(a, b, rtol=1e-05, atol=1e-08):
 
 def solve(system):
     results = null_space(system).T
-    if len(results) == 0:
-        raise ValueError(f'No solution found.')
-    
+
     for i, test in enumerate(results.copy()):
         if np.any(np.isclose(test, 0)):
             continue
@@ -133,7 +131,8 @@ def solve(system):
             ratios = results[i]
             break
     else:
-        raise ValueError('No solution found (with all positive coefecients).')
+        raise Exception('No solution found.')
+    
     if np.any(ratios < 0):
         ratios *= -1
     
@@ -222,7 +221,7 @@ def main() -> None:
     equation = 'Al2(SO4)3 + Ca(OH)2 -> Al(OH)3 + CaSO4'
     try:
         result = get_balanced_equation(equation)
-    except ValueError as e:
+    except Exception as e:
         print(e)
         return
     print(result)
