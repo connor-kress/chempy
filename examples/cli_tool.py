@@ -1,17 +1,20 @@
+from chempy import Equation
 import sys
-
 
 def main() -> None:
     if len(sys.argv) != 2:
         print('Please provide one argument in the form "A + B -> C".')
         return
-    equation = sys.argv[1]
+    
+    equation_str = sys.argv[1]
     try:
-        result = 0  # get_balanced_equation(equation)
-    except ValueError as e:
+        equation = Equation.parse_from_string(equation_str)
+        equation.balance()
+    except Exception as e:
         print(e)
         return
-    print(result)
+    
+    print(equation)
 
 
 if __name__ == '__main__':
