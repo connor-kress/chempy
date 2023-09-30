@@ -98,8 +98,10 @@ class Compound:
                 lower = ''
             else:
                 tokens.insert(0, Element(c))
-        if num_str or lower:
+        if lower:
             raise ValueError(f'Invalid compound syntax "{compound_string}"')
+        if num_str:
+           tokens.insert(0, int(num_str))
         return tokens
 
     @staticmethod
