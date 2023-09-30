@@ -49,6 +49,33 @@ class Equation:
             )
         """
 
+    def is_balanced(self) -> bool:
+        """"Returns `True` if the `Equation` is balanced else `False`."""
+        if self.coefficients is None:
+            return False
+        
+        reactants_vec = np.sum(np.array([
+            comp.vector * coef
+            for comp, coef in zip(
+                self.reactants, self.coefficients[:len(self.reactants)]
+            )
+        ]), axis=0)
+        products_vec = np.sum(np.array([
+            comp.vector * coef
+            for comp, coef in zip(
+                self.products, self.coefficients[len(self.reactants):]
+            )
+        ]), axis=0)
+
+        return np.all(reactants_vec == products_vec)
+    
+    def assert_balanced(self) -> Self:
+        """Asserts that `self` is balanced and returns `self`."""
+        if not self.is_balanced():
+            raise AssertionError(f'The equation {self} was not '
+                                 'balanced as asserted.')
+        return self
+
     def balance(self) -> None:
         """Finds the coefficients corresponding to the balanced `Equation`
         and writes them to `self.coefficients`.
@@ -58,6 +85,8 @@ class Equation:
     
         system = np.hstack((reactant_vecs.T, -product_vecs.T))
         self.coefficients = list(solve(system))
+        if not self.is_balanced():
+            raise Exception(f'An equation was incorrectly balanced to {self}')
     
     def balanced(self) -> Self:
         """Returns a balanced version of `self`."""
