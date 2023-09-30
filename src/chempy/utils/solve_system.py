@@ -6,7 +6,7 @@ import numpy as np
 
 def solve(system):
     results = null_space(system).T
-    
+
     for result in results:
         if np.any(np.isclose(result, 0)):
             continue
@@ -15,11 +15,11 @@ def solve(system):
             ratios = result * signs[0]
             break
     else:
-        raise BalancingError('No solution found.')
+        raise BalancingError('No solution found.', results)
     
     solution = ratios / float_gcd(ratios)
     
     if not np.allclose(solution, np.round(solution)):
-        raise BalancingError(f'Unknown error. Found solution {solution}.')
+        raise BalancingError(f'Unknown error.', results, ratios, solution)
     
     return np.round(solution).astype(int)
