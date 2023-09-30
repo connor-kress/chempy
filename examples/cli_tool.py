@@ -12,7 +12,6 @@ def main() -> None:
         equation.balance()
     except (ValueError, BalancingError) as e:
         print(f'[ERROR] {e}')
-        return
     else:
         print(equation)
 
