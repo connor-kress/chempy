@@ -2,9 +2,10 @@ from chempy import BalancingError
 from .gcd import float_gcd
 from scipy.linalg import null_space
 import numpy as np
+import numpy.typing as npt
 
 
-def solve(system):
+def solve(system: npt.NDArray[np.int_]) -> npt.NDArray[np.int_]:
     results = null_space(system).T
 
     for result in results:
@@ -20,6 +21,6 @@ def solve(system):
     solution = ratios / float_gcd(ratios)
     
     if not np.allclose(solution, np.round(solution)):
-        raise BalancingError(f'Unknown error.', results, ratios, solution)
+        raise BalancingError('Unknown error.', results, ratios, solution)
     
-    return np.round(solution).astype(int)
+    return np.round(solution).astype(np.int_)
