@@ -12,7 +12,7 @@ def main() -> None:
         equation = Equation.parse_from_string(equation_str)
         equation.balance()
     except (ValueError, BalancingError) as e:
-        print(f'[ERROR] {e}')
+        print(f'[ERROR] {e}', file=sys.stderr)
         sys.exit(1)
     else:
         print(equation)
