@@ -13,8 +13,10 @@ def main() -> None:
         equation.balance()
     except (ValueError, BalancingError) as e:
         print(f'[ERROR] {e}')
+        sys.exit(1)
     else:
         print(equation)
+        sys.exit(0)
 
 
 if __name__ == '__main__':
