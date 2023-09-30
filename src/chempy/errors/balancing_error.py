@@ -1,0 +1,2 @@
+class BalancingError(Exception):
+    pass
