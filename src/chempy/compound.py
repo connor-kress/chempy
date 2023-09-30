@@ -153,3 +153,8 @@ class Compound:
                     elements[token] += 1
             i += 1
         return elements
+
+    @staticmethod
+    def parse_from_list(compound_strings: list[str]) -> list[Self]:
+        """Parses a list of strings into a list of `Compound`s."""
+        return list(map(Compound.parse_from_string, compound_strings))
