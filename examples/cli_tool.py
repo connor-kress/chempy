@@ -1,4 +1,4 @@
-from chempy import Equation
+from chempy import Equation, BalancingError
 import sys
 
 def main() -> None:
@@ -10,11 +10,11 @@ def main() -> None:
     try:
         equation = Equation.parse_from_string(equation_str)
         equation.balance()
-    except Exception as e:
-        print(e)
+    except (ValueError, BalancingError) as e:
+        print(f'[ERROR] {e}')
         return
-    
-    print(equation)
+    else:
+        print(equation)
 
 
 if __name__ == '__main__':
