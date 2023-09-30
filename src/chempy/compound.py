@@ -44,9 +44,8 @@ class Compound:
     
     def __eq__(self, other) -> bool:
         if not isinstance(other, Compound):
-            raise ValueError(
-                f'Connot compare the types `Compound` and `{type(other).__name__}`'
-            )
+            raise ValueError('Connot compare the types `Compound` '
+                             f'and `{type(other).__name__}`')
         return self.elements == other.elements
 
     @staticmethod
@@ -59,14 +58,12 @@ class Compound:
                 or c in RIGHT_DELS
             for c in compound_string
         ):
-            raise ValueError(
-                f'Invalid character found while parsing "{compound_string}".'
-            )
+            raise ValueError('Invalid character found while '
+                             f'parsing "{compound_string}".')
         if (sum(c in LEFT_DELS for c in compound_string)
             != sum(c in RIGHT_DELS for c in compound_string)):
-            raise ValueError(
-                f'Unequal left and right delimiters in "{compound_string}".'
-            )
+            raise ValueError('Unequal left and right delimiters '
+                             f'in "{compound_string}".')
         
         tokens = Compound._parse_to_tokens(compound_string)
         elements = Compound._parse_from_tokens(tokens)
@@ -82,9 +79,8 @@ class Compound:
         for c in reversed(compound_string):
             if c.isdigit():
                 if lower:
-                    raise ValueError(
-                        f'Invalid input syntax ({compound_string})'
-                    )
+                    raise ValueError('Invalid compound syntax '
+                                     f'"{compound_string}"')
                 num_str = c + num_str
                 continue
             if num_str:
@@ -92,9 +88,8 @@ class Compound:
                 num_str = ''
             if c in LEFT_DELS + RIGHT_DELS:
                 if lower:
-                    raise ValueError(
-                        f'Invalid input syntax ({compound_string})'
-                    )
+                    raise ValueError('Invalid compound syntax '
+                                     f'"{compound_string}"')
                 tokens.insert(0, c)
             elif c.islower():
                 lower = c + lower
@@ -104,7 +99,7 @@ class Compound:
             else:
                 tokens.insert(0, Element(c))
         if num_str or lower:
-            raise ValueError(f'Invalid input syntax "{compound_string}"')
+            raise ValueError(f'Invalid compound syntax "{compound_string}"')
         return tokens
 
     @staticmethod
@@ -131,7 +126,7 @@ class Compound:
             )
 
         if isinstance(tokens[0], int):
-            raise ValueError('Invalid equation syntax.')
+            raise ValueError('Invalid compound syntax.')
         
         elements = Counter()
         i = 0
@@ -150,7 +145,7 @@ class Compound:
                     i = close_idx + 1
                 continue
             if token in RIGHT_DELS:
-                raise ValueError('Invalid equation syntax (delimeters).')
+                raise ValueError('Invalid compound syntax (delimeters).')
             if isinstance(token, Element):
                 if i+1 < len(tokens) and isinstance(tokens[i+1], int):
                     elements[token] += tokens[i+1]
