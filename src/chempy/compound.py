@@ -1,5 +1,5 @@
-from data.elements import ATOMIC_NUMS
-from element import Element
+from .data.elements import ATOMIC_NUMS
+from .element import Element
 from collections import Counter
 from typing import Self
 import numpy as np

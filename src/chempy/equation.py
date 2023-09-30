@@ -1,5 +1,5 @@
-from utils import solve
-from compound import Compound
+from .utils import solve
+from .compound import Compound
 from typing import Self
 import numpy as np
 
