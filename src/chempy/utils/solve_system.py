@@ -19,6 +19,6 @@ def solve(system):
     solution = ratios / float_gcd(ratios)
     
     if not np.allclose(solution, np.round(solution)):
-        raise ValueError(f'Unknown error. Found solution {solution}.')
+        raise Exception(f'Unknown error. Found solution {solution}.')
     
     return np.round(solution).astype(int)
