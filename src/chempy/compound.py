@@ -47,6 +47,11 @@ class Compound:
             raise ValueError('Connot compare the types `Compound` '
                              f'and `{type(other).__name__}`')
         return self.elements == other.elements
+    
+    def __hash__(self) -> int:
+        element_data = list(self.elements.items())
+        element_data.sort(key=lambda tup: ATOMIC_NUMS[tup[0].symbol])
+        return hash(tuple(element_data))
 
     @classmethod
     def parse_from_string(cls, compound_string: str) -> Self:
