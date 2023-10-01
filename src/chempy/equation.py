@@ -171,3 +171,8 @@ class Equation:
         products = list(map(Compound.parse_from_string, products_str.split('+')))
 
         return cls(reactants, products)
+
+    @classmethod
+    def parse_from_list(cls, equation_strings: list[str]) -> list[Self]:
+        """Parses a list of strings into a list of `Compound`s."""
+        return list(map(cls.parse_from_string, equation_strings))
