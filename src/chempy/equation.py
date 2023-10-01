@@ -49,6 +49,36 @@ class Equation:
             )
         """
 
+    def extended(self, other: Self) -> Self:
+        """Returns an `Equation` representing an extension of `self` by
+        applying the reaction described in `other` to the products of `self`.
+
+        Examples
+        --------
+        >>> from chempy import Equation
+        >>> equation1 = Equation.parse_from_string('H2O2 -> H2 + O2')
+        >>> equation2 = Equation.parse_from_string('O2 -> O')
+        >>> equation1.extended(equation2)
+        H2O2 -> H2 + O
+        """
+        if not isinstance(other, Equation):
+            raise TypeError('`Equation.extend` can only be passed other '
+                            '`Equation` instances.')
+        
+        total_reactants = set(self.reactants)
+        total_products = set(other.products)
+        intermediates = set(self.products).intersection(other.reactants)
+        total_reactants.update(set(other.reactants).difference(intermediates))
+        total_products.update(set(self.products).difference(intermediates))
+        
+        return self.__class__(list(total_reactants), list(total_products))
+
+    def extend(self, other: Self) -> None:
+        """A mutable version of `Equation.extended` that updates `self` to
+        the extension of `self` and `other`.
+        """
+        self = self.extended(other)
+
     def is_balanced(self) -> bool:
         """"Returns `True` if the `Equation` is balanced else `False`."""
         if self.coefficients is None:
@@ -107,4 +137,4 @@ class Equation:
         reactants = list(map(Compound.parse_from_string, reactants_str.split('+')))
         products = list(map(Compound.parse_from_string, products_str.split('+')))
 
-        return cls(products, reactants)
+        return cls(reactants, products)
