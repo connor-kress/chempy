@@ -62,8 +62,8 @@ class Equation:
         H2O2 -> H2 + 2(O)
         """
         if not isinstance(other, Equation):
-            raise TypeError('`Equation.extend` can only be passed other '
-                            '`Equation` instances.')
+            raise TypeError('`Equation.extended` can only be passed '
+                            'other `Equation` instances.')
         
         total_reactants = set(self.reactants)
         total_products = set(other.products)
