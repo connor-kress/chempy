@@ -1,4 +1,7 @@
-from .utils import solve
+from .utils import (
+    solve,
+    tokenize_string,
+)
 from .compound import Compound
 from typing import Self
 import numpy as np
@@ -165,12 +168,11 @@ class Equation:
 
         reactants = []
         for reactant_str in reactants_str.split('+'):
-            first_token = Compound._parse_to_tokens(
-                                    reactant_str.replace(' ', ''))[0]
+            first_token = tokenize_string(reactant_str)[0]
             if isinstance(first_token, int):
                 coefficients.append(first_token)
                 reactants.append(Compound.parse_from_string(
-                    reactant_str.removeprefix(str(first_token))
+                    reactant_str.strip().removeprefix(str(first_token))
                 ))
             else:
                 coefficients.append(1)
@@ -178,12 +180,11 @@ class Equation:
         
         products = []
         for product_str in products_str.split('+'):
-            first_token = Compound._parse_to_tokens(
-                                    product_str.replace(' ', ''))[0]
+            first_token = tokenize_string(product_str)[0]
             if isinstance(first_token, int):
                 coefficients.append(first_token)
                 products.append(Compound.parse_from_string(
-                    product_str.removeprefix(str(first_token))
+                    product_str.strip().removeprefix(str(first_token))
                 ))
             else:
                 coefficients.append(1)
