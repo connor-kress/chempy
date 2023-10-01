@@ -29,7 +29,7 @@ class Element:
         self.number = ATOMIC_NUMS[symbol]
 
         temp = np.zeros(NUMBER_OF_ELEMENTS, dtype=int)
-        temp[self.number-1] = 1
+        temp[self.number-1] = 1  # np.sqrt(nth_prime(self.neutrons))
         self.vector = temp
     
     def __str__(self) -> str:

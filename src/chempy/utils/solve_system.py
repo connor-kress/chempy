@@ -6,6 +6,9 @@ import numpy.typing as npt
 
 
 def solve(system: npt.NDArray[np.int_]) -> npt.NDArray[np.int_]:
+    # if system.rank() == system.shape[1]:  # nullity == 0
+    #     raise BalancingError('There is no solution.', results = np.array([]))
+    
     results = null_space(system).T
 
     for result in results:
