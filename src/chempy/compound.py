@@ -164,7 +164,7 @@ class Compound:
             i += 1
         return elements
 
-    @staticmethod
-    def parse_from_list(compound_strings: list[str]) -> list[Self]:
+    @classmethod
+    def parse_from_list(cls, compound_strings: list[str]) -> list[Self]:
         """Parses a list of strings into a list of `Compound`s."""
-        return list(map(Compound.parse_from_string, compound_strings))
+        return list(map(cls.parse_from_string, compound_strings))
