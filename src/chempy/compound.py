@@ -81,6 +81,8 @@ class Compound:
             and get_closing_index(1, tokens[0], tokens) == len(tokens)-1:
             tokens.pop(0); tokens.pop()
             compound_string = compound_string[1:-1]
+            if not tokens:
+                raise ValueError('Invalid compound syntax.')
         
         return cls(elements, compound_string)
     
@@ -125,7 +127,7 @@ class Compound:
         """Parses a list of tokens into a standardized `Counter` of the
         `Element`s represented.
         """
-        if isinstance(tokens[0], int):
+        if not tokens or isinstance(tokens[0], int):
             raise ValueError('Invalid compound syntax.')
         
         elements = Counter()
