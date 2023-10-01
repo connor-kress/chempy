@@ -9,36 +9,31 @@ class Equation:
             self,
             reactants: list[Compound],
             products: list[Compound],
-            coefficients: list[int] = None
+            coefficients: list[int] = None,
         ) -> None:
         """Constructs a chemical equation with or without coefficients."""
         self.reactants = reactants
         self.products = products
-        self.coefficients = coefficients
+        self.coefficients = coefficients if coefficients is not None else [
+            1 for _ in range(len(self.reactants) + len(self.products))
+        ]
     
     def __str__(self) -> str:
-        if self.coefficients is not None:
-            return (
-                ' + '.join([
-                    f'{coef}({comp})' if coef!=1 else str(comp)
-                    for comp, coef in zip(
-                        self.reactants, self.coefficients[:len(self.reactants)]
-                    )
-                ])
-                + ' -> '
-                + ' + '.join([
-                    f'{coef}({comp})' if coef!=1 else str(comp)
-                    for comp, coef in zip(
-                        self.products, self.coefficients[len(self.reactants):]
-                    )
-                ])
-            )
-        else:
-            return (
-                ' + '.join(map(str, self.reactants))
-                + ' -> '
-                + ' + '.join(map(str, self.products))
-            )
+        return (
+            ' + '.join([
+                f'{coef}({comp})' if coef!=1 else str(comp)
+                for comp, coef in zip(
+                    self.reactants, self.coefficients[:len(self.reactants)]
+                )
+            ])
+            + ' -> '
+            + ' + '.join([
+                f'{coef}({comp})' if coef!=1 else str(comp)
+                for comp, coef in zip(
+                    self.products, self.coefficients[len(self.reactants):]
+                )
+            ])
+        )
 
     def __repr__(self) -> str:
         return f"""
@@ -53,8 +48,7 @@ class Equation:
         return self.__class__(
             [comp.copy() for comp in self.reactants],
             [comp.copy() for comp in self.products],
-            self.coefficients.copy()\
-                if self.coefficients is not None else None,
+            self.coefficients.copy(),
         )
     
     def _set_self(self, new_self: Self) -> None:
@@ -166,11 +160,36 @@ class Equation:
         else:
             raise ValueError('Invalid equation syntax. Seperate '
                              'reactants and products with "->".')
+        
+        coefficients = []
 
-        reactants = list(map(Compound.parse_from_string, reactants_str.split('+')))
-        products = list(map(Compound.parse_from_string, products_str.split('+')))
+        reactants = []
+        for reactant_str in reactants_str.split('+'):
+            first_token = Compound._parse_to_tokens(
+                                    reactant_str.replace(' ', ''))[0]
+            if isinstance(first_token, int):
+                coefficients.append(first_token)
+                reactants.append(Compound.parse_from_string(
+                    reactant_str.removeprefix(str(first_token))
+                ))
+            else:
+                coefficients.append(1)
+                reactants.append(Compound.parse_from_string(reactant_str))
+        
+        products = []
+        for product_str in products_str.split('+'):
+            first_token = Compound._parse_to_tokens(
+                                    product_str.replace(' ', ''))[0]
+            if isinstance(first_token, int):
+                coefficients.append(first_token)
+                products.append(Compound.parse_from_string(
+                    product_str.removeprefix(str(first_token))
+                ))
+            else:
+                coefficients.append(1)
+                products.append(Compound.parse_from_string(product_str))
 
-        return cls(reactants, products)
+        return cls(reactants, products, coefficients)
 
     @classmethod
     def parse_from_list(cls, equation_strings: list[str]) -> list[Self]:

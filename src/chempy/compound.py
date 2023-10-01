@@ -1,5 +1,6 @@
 from .data.elements import ATOMIC_NUMS
 from .element import Element
+from .utils import get_closing_index
 from collections import Counter
 from typing import Self
 import numpy as np
@@ -76,6 +77,11 @@ class Compound:
         tokens = Compound._parse_to_tokens(compound_string)
         elements = Compound._parse_from_tokens(tokens)
 
+        while tokens[0] in LEFT_DELS\
+            and get_closing_index(1, tokens[0], tokens) == len(tokens)-1:
+            tokens.pop(0); tokens.pop()
+            compound_string = compound_string[1:-1]
+        
         return cls(elements, compound_string)
     
     @staticmethod
@@ -119,22 +125,6 @@ class Compound:
         """Parses a list of tokens into a standardized `Counter` of the
         `Element`s represented.
         """
-        def get_closing_index(start: int, l_del: str) -> int:
-            """Returns the closing index of an opened delimeter."""
-            r_del = RIGHT_DELS[LEFT_DELS.index(l_del)]
-            count = 0
-            for i in range(start, len(tokens)):
-                frag = tokens[i]
-                if frag == l_del:
-                    count += 1
-                elif frag == r_del:
-                    if count == 0:
-                        return i
-                    count -= 1
-            raise ValueError(
-                f'"{l_del}" opened at i={start-1} was never closed.'
-            )
-
         if isinstance(tokens[0], int):
             raise ValueError('Invalid compound syntax.')
         
@@ -143,7 +133,7 @@ class Compound:
         while i < len(tokens):
             token = tokens[i]
             if token in LEFT_DELS:
-                close_idx = get_closing_index(i+1, token)
+                close_idx = get_closing_index(i+1, token, tokens)
                 inside = Compound._parse_from_tokens(tokens[i+1:close_idx])
                 if (close_idx+1 <= len(tokens)-1
                     and isinstance(tokens[close_idx+1], int)):
