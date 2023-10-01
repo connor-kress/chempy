@@ -52,6 +52,9 @@ class Compound:
         element_data = list(self.elements.items())
         element_data.sort(key=lambda tup: ATOMIC_NUMS[tup[0].symbol])
         return hash(tuple(element_data))
+    
+    def copy(self) -> Self:
+        return self.__class__(self.elements.copy(), self.string)
 
     @classmethod
     def parse_from_string(cls, compound_string: str) -> Self:
