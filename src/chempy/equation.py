@@ -58,8 +58,8 @@ class Equation:
         >>> from chempy import Equation
         >>> equation1 = Equation.parse_from_string('H2O2 -> H2 + O2')
         >>> equation2 = Equation.parse_from_string('O2 -> O')
-        >>> equation1.extended(equation2)
-        H2O2 -> H2 + O
+        >>> equation1.extended(equation2).balanced()
+        H2O2 -> H2 + 2(O)
         """
         if not isinstance(other, Equation):
             raise TypeError('`Equation.extend` can only be passed other '
