@@ -48,8 +48,8 @@ class Compound:
                              f'and `{type(other).__name__}`')
         return self.elements == other.elements
 
-    @staticmethod
-    def parse_from_string(compound_string: str) -> Self:
+    @classmethod
+    def parse_from_string(cls, compound_string: str) -> Self:
         """Parses a given string into a `Compound` instance."""
         compound_string = compound_string.replace(' ', '')
         if not all(
@@ -68,7 +68,7 @@ class Compound:
         tokens = Compound._parse_to_tokens(compound_string)
         elements = Compound._parse_from_tokens(tokens)
 
-        return Compound(elements, compound_string)
+        return cls(elements, compound_string)
     
     @staticmethod
     def _parse_to_tokens(compound_string: str) -> list[Element | str | int]:

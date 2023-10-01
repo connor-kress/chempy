@@ -93,8 +93,8 @@ class Equation:
         self.balance()
         return self
     
-    @staticmethod
-    def parse_from_string(equation_string):
+    @classmethod
+    def parse_from_string(cls, equation_string):
         """Parses a given string into an `Equation` instance."""
         if '->' in equation_string:
             reactants_str, products_str = equation_string.split('->')
@@ -107,4 +107,4 @@ class Equation:
         reactants = list(map(Compound.parse_from_string, reactants_str.split('+')))
         products = list(map(Compound.parse_from_string, products_str.split('+')))
 
-        return Equation(reactants, products)
+        return cls(products, reactants)
