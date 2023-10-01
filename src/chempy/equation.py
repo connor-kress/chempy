@@ -58,6 +58,9 @@ class Equation:
         )
     
     def _set_self(self, new_self: Self) -> None:
+        """Sets the attributes of `self` to the attributes of `new_self`.
+        
+        Required to get around Python's mutability syntax/rules."""
         self.reactants = new_self.reactants
         self.products = new_self.products
         self.coefficients = new_self.coefficients
@@ -83,7 +86,7 @@ class Equation:
         intermediates = set(self.products).intersection(other.reactants)
         total_reactants.update(set(other.reactants).difference(intermediates))
         total_products.update(set(self.products).difference(intermediates))
-        
+
         return self.__class__(list(total_reactants), list(total_products))
 
     def extend(self, other: Self) -> None:
@@ -92,15 +95,22 @@ class Equation:
         """
         self._set_self(self.extended(other))
     
-    def extended_all(self, others: list[Self]) -> Self:
+    def extended_all(self, equations: list[Self]) -> Self:
+        """Returns an `Equation` representing an extension of `self` by
+        applying the reaction described in each `Equation` of `equations`
+        in order.
+        """
         current = self
-        for other in others:
-            current = current.extended(other)
+        for equation in equations:
+            current = current.extended(equation)
         return current
     
-    def extend_all(self, others: list[Self]) -> None:
-        for other in others:
-            self.extend(other)
+    def extend_all(self, equations: list[Self]) -> None:
+        """A mutable version of `Equation.extended_all` that extends `self`
+        with each `Equation` in `equations`.
+        """
+        for equation in equations:
+            self.extend(equation)
 
     def is_balanced(self) -> bool:
         """"Returns `True` if the `Equation` is balanced else `False`."""
