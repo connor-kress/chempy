@@ -48,6 +48,19 @@ class Equation:
                 {self.coefficients},
             )
         """
+    
+    def copy(self) -> Self:
+        return self.__class__(
+            [comp.copy() for comp in self.reactants],
+            [comp.copy() for comp in self.products],
+            self.coefficients.copy()\
+                if self.coefficients is not None else None,
+        )
+    
+    def _set_self(self, new_self: Self) -> None:
+        self.reactants = new_self.reactants
+        self.products = new_self.products
+        self.coefficients = new_self.coefficients
 
     def extended(self, other: Self) -> Self:
         """Returns an `Equation` representing an extension of `self` by
@@ -77,7 +90,17 @@ class Equation:
         """A mutable version of `Equation.extended` that updates `self` to
         the extension of `self` and `other`.
         """
-        self = self.extended(other)
+        self._set_self(self.extended(other))
+    
+    def extended_all(self, others: list[Self]) -> Self:
+        current = self
+        for other in others:
+            current = current.extended(other)
+        return current
+    
+    def extend_all(self, others: list[Self]) -> None:
+        for other in others:
+            self.extend(other)
 
     def is_balanced(self) -> bool:
         """"Returns `True` if the `Equation` is balanced else `False`."""
