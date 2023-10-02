@@ -39,14 +39,12 @@ class Element(Printable):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}('{self.symbol}')"
     
-    def latex(self) -> str:
+    def latex(self, count: int = 1) -> str:
         """Returns a LaTeX string representation of the element."""
-        return fr'\text{{{self.symbol}}}'
-    
-    # def _repr_latex_(self) -> str:
-    #     """IPython/Jupyter LaTeX printing."""
-    #     return fr'$\displaystyle {self.latex()}$'
-    
+        if count != 1:
+            return fr'\text{{{self.symbol}}}_{{{count}}}'
+        else:
+            return fr'\text{{{self.symbol}}}'
     
     def __hash__(self):
         """`Element`s can be hashed with their ids as there is only ever one

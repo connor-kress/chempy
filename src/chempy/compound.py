@@ -61,13 +61,11 @@ class Compound(Printable):
     
     def latex(self) -> str:
         """Returns a LaTeX string representation of the compound."""
-        compound_string = ''
-        for element, count in self.elements.items():
-            if count != 1:
-                compound_string += fr'{{{element.latex()}}}_{{{count}}}'
-            else:
-                compound_string += element.latex()
-        return compound_string
+        element_strings = [
+            element.latex(count)
+            for element, count in self.elements.items()
+        ]
+        return ''.join(element_strings)
     
     def copy(self) -> Self:
         return self.__class__(self.elements.copy(), self.string)
