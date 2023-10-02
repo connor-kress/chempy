@@ -62,30 +62,35 @@ class Compound(Printable):
     def latex(self) -> str:
         """Returns a LaTeX string representation of the compound."""
         tokens = tokenize_string(self.string)
+        previous_token = None
         string_frags = []
         while tokens:
             token = tokens.pop()
             if isinstance(token, Element):
                 string_frags.append(token.latex())
             elif token in LEFT_DELS:
-                if tokens and tokens[-1] in LEFT_DELS:
-                    string_frags.append(fr'\left\{token}' if token == '{'
-                                        else fr'\left{token}')
-                else:
-                    string_frags.append(fr'\!\left\{token}' if token == '{'
-                                        else fr'\!\left{token}')
+                del_str = fr'\{token}' if token == '{' else token
+                front_space = '' if tokens and tokens[-1]\
+                                    in LEFT_DELS else r'\!'
+                string_frags.append(fr'{front_space}\left{del_str}')
             elif token in RIGHT_DELS:
-                string_frags.append(fr'\right\{token}' if token == '}'
-                                    else fr'\right{token}')
+                del_str = fr'\{token}' if token == '}' else token
+                back_space = r'\!' if isinstance(previous_token,
+                                                 Element) else ''
+                string_frags.append(fr'\right{del_str}{back_space}')
             elif isinstance(token, int):
                 if tokens[-1] in RIGHT_DELS:
-                    string_frags.append(f'_{{{token}}}')
+                    back_space = '' if previous_token in LEFT_DELS\
+                                    or previous_token in RIGHT_DELS else r'\!'
+                    string_frags.append(f'_{{{token}}}{back_space}')
                 elif isinstance(tokens[-1], Element):
-                    string_frags.append(tokens.pop().latex(token))
+                    count, token = token, tokens.pop()
+                    string_frags.append(token.latex(count))
                 else:
                     raise Exception('Unknown error.')
             else:
                 raise Exception('Unknown error.')
+            previous_token = token
         return ''.join(reversed(string_frags))
 
     def copy(self) -> Self:
