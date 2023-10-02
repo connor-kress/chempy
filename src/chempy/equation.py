@@ -25,14 +25,14 @@ class Equation(Printable):
     def __str__(self) -> str:
         return (
             ' + '.join([
-                f'{coef}({comp})' if coef!=1 else str(comp)
+                f'{coef}({comp})' if coef != 1 else str(comp)
                 for comp, coef in zip(
                     self.reactants, self.coefficients[:len(self.reactants)]
                 )
             ])
             + ' -> '
             + ' + '.join([
-                f'{coef}({comp})' if coef!=1 else str(comp)
+                f'{coef}({comp})' if coef != 1 else str(comp)
                 for comp, coef in zip(
                     self.products, self.coefficients[len(self.reactants):]
                 )
@@ -51,12 +51,12 @@ class Equation(Printable):
     def latex(self) -> str:
         """Returns a LaTeX string representation of the equation."""
         reactant_strs = [
-            fr'{coef}\left({comp.latex()}\right)' if coef!=1 else comp.latex()
+            fr'{coef}\,{comp.latex()}' if coef != 1 else comp.latex()
             for comp, coef in zip(self.reactants,
                                   self.coefficients[:len(self.reactants)])
         ]
         product_strs = [
-            fr'{coef}\left({comp.latex()}\right)' if coef!=1 else comp.latex()
+            fr'{coef}\,{comp.latex()}' if coef != 1 else comp.latex()
             for comp, coef in zip(self.products,
                                   self.coefficients[len(self.reactants):])
         ]

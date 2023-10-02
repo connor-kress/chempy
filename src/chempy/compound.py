@@ -61,11 +61,34 @@ class Compound(Printable):
     
     def latex(self) -> str:
         """Returns a LaTeX string representation of the compound."""
-        element_strings = [
-            element.latex(count)
-            for element, count in self.elements.items()
-        ]
-        return ''.join(element_strings)
+        tokens = tokenize_string(self.string)
+        string_frags = []
+        while tokens:
+            token = tokens.pop()
+            if isinstance(token, Element):
+                string_frags.append(token.latex())
+            elif token in LEFT_DELS:
+                string_frags.append(fr'\!\left\{token}' if token == '{'
+                                    else fr'\!\left{token}')
+            elif token in RIGHT_DELS:
+                string_frags.append(fr'\right\{token}' if token == '}'
+                                    else fr'\right{token}')
+            elif isinstance(token, int):
+                if tokens[-1] in RIGHT_DELS:
+                    string_frags.append(f'_{{{token}}}')
+                elif isinstance(tokens[-1], Element):
+                    string_frags.append(tokens.pop().latex(token))
+                else:
+                    raise Exception('Unknown error.')
+            else:
+                raise Exception('Unknown error.')
+        return ''.join(reversed(string_frags))
+
+        # element_strings = [
+        #     element.latex(count)
+        #     for element, count in self.elements.items()
+        # ]
+        # return ''.join(element_strings)
     
     def copy(self) -> Self:
         return self.__class__(self.elements.copy(), self.string)
