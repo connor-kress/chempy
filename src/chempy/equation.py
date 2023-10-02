@@ -164,8 +164,9 @@ class Equation(Printable):
     
     def balanced(self) -> Self:
         """Returns a balanced version of `self`."""
-        self.balance()
-        return self
+        new_equation = self.copy()
+        new_equation.balance()
+        return new_equation
     
     @classmethod
     def parse_from_string(cls, equation_string):
