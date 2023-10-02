@@ -1,3 +1,4 @@
+from .printable import Printable
 from .utils import (
     solve,
     tokenize_string,
@@ -7,7 +8,7 @@ from typing import Self
 import numpy as np
 
 
-class Equation:
+class Equation(Printable):
     def __init__(
             self,
             reactants: list[Compound],
@@ -46,6 +47,22 @@ class Equation:
                 {self.coefficients},
             )
         """
+    
+    def latex(self) -> str:
+        """Returns a LaTeX string representation of the equation."""
+        reactant_strs = [
+            fr'{coef}\left({comp.latex()}\right)' if coef!=1 else comp.latex()
+            for comp, coef in zip(self.reactants,
+                                  self.coefficients[:len(self.reactants)])
+        ]
+        product_strs = [
+            fr'{coef}\left({comp.latex()}\right)' if coef!=1 else comp.latex()
+            for comp, coef in zip(self.products,
+                                  self.coefficients[len(self.reactants):])
+        ]
+        return '+'.join(reactant_strs)\
+            + r'\rightarrow'\
+            + '+'.join(product_strs)
     
     def copy(self) -> Self:
         return self.__class__(
@@ -111,9 +128,6 @@ class Equation:
 
     def is_balanced(self) -> bool:
         """"Returns `True` if the `Equation` is balanced else `False`."""
-        if self.coefficients is None:
-            return False
-        
         reactants_vec = np.sum(np.array([
             comp.vector * coef
             for comp, coef in zip(
@@ -127,7 +141,7 @@ class Equation:
             )
         ]), axis=0)
 
-        return np.all(reactants_vec == products_vec)
+        return np.allclose(reactants_vec, products_vec)
     
     def assert_balanced(self) -> Self:
         """Asserts that `self` is balanced and returns `self`."""

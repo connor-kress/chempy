@@ -1,11 +1,12 @@
 from .data.elements import ATOMIC_NUMS
+from .printable import Printable
 from typing import Self
 import numpy as np
 
 NUMBER_OF_ELEMENTS = len(ATOMIC_NUMS)
 
 
-class Element:
+class Element(Printable):
     _all_elements: dict[str, Self] = {}
 
     def __new__(cls, symbol: str) -> Self:
@@ -37,6 +38,15 @@ class Element:
     
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}('{self.symbol}')"
+    
+    def latex(self) -> str:
+        """Returns a LaTeX string representation of the element."""
+        return fr'\text{{{self.symbol}}}'
+    
+    # def _repr_latex_(self) -> str:
+    #     """IPython/Jupyter LaTeX printing."""
+    #     return fr'$\displaystyle {self.latex()}$'
+    
     
     def __hash__(self):
         """`Element`s can be hashed with their ids as there is only ever one

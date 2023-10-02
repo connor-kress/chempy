@@ -1,5 +1,6 @@
 from .data.elements import ATOMIC_NUMS
 from .element import Element
+from .printable import Printable
 from .utils import (
     get_closing_index,
     tokenize_string,
@@ -14,7 +15,7 @@ LEFT_DELS = ['(', '[', '{']
 RIGHT_DELS = [')', ']', '}']
 
 
-class Compound:
+class Compound(Printable):
     def __init__(self, elements: Counter[Element], string: str = None):
         """Constructs a compound from a number of `Element`s and an optional
         `string` to refer to the `Compound` by.
@@ -57,6 +58,16 @@ class Compound:
         element_data = list(self.elements.items())
         element_data.sort(key=lambda tup: ATOMIC_NUMS[tup[0].symbol])
         return hash(tuple(element_data))
+    
+    def latex(self) -> str:
+        """Returns a LaTeX string representation of the compound."""
+        compound_string = ''
+        for element, count in self.elements.items():
+            if count != 1:
+                compound_string += fr'{{{element.latex()}}}_{{{count}}}'
+            else:
+                compound_string += element.latex()
+        return compound_string
     
     def copy(self) -> Self:
         return self.__class__(self.elements.copy(), self.string)
