@@ -1,3 +1,7 @@
+"""
+TODO: Implement isotopes and/or charge.
+"""
+
 from .data.elements import ATOMIC_NUMS
 from .printable import Printable
 from typing import Self

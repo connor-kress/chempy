@@ -1,3 +1,7 @@
+"""
+TODO: Make `extended` keep coefficient data.
+"""
+
 from .printable import Printable
 from .utils import (
     solve,

@@ -1,3 +1,9 @@
+"""
+TODO: Add parsing for state (s, l, g, aq). (Enum? What else does this affect?)
+TODO: Move `LEFT\RIGHT_DELS` into a file in `data` directory.
+TODO: Add more data for elements for atomic mass etc. (Isotope mass data?)
+"""
+
 from .data.elements import ATOMIC_NUMS
 from .element import Element
 from .printable import Printable
