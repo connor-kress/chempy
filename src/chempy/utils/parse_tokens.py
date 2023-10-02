@@ -1,9 +1,7 @@
+from ..data import  LEFT_DELS, RIGHT_DELS
 from ..element import Element
 from .get_index import get_closing_index
 from collections import Counter
-
-LEFT_DELS = ['(', '[', '{']
-RIGHT_DELS = [')', ']', '}']
 
 
 def parse_elements_from_tokens(

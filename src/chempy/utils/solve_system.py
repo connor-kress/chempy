@@ -1,4 +1,4 @@
-from chempy import BalancingError
+from ..errors import BalancingError
 from .gcd import float_gcd
 from scipy.linalg import null_space
 import numpy as np

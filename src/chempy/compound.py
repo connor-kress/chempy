@@ -1,24 +1,24 @@
 """
 TODO: Add parsing for state (s, l, g, aq). (Enum? What else does this affect?)
-TODO: Move `LEFT\RIGHT_DELS` into a file in `data` directory.
 TODO: Add more data for elements for atomic mass etc. (Isotope mass data?)
 """
 
-from .data.elements import ATOMIC_NUMS
-from .element import Element
-from .printable import Printable
+from .data import (
+    LEFT_DELS,
+    RIGHT_DELS,
+    ATOMIC_NUMS,
+    NUMBER_OF_ELEMENTS,
+)
 from .utils import (
     get_closing_index,
     tokenize_string,
     parse_elements_from_tokens
 )
+from .element import Element
+from .printable import Printable
 from collections import Counter
 from typing import Self
 import numpy as np
-
-NUMBER_OF_ELEMENTS = len(ATOMIC_NUMS)
-LEFT_DELS = ['(', '[', '{']
-RIGHT_DELS = [')', ']', '}']
 
 
 class Compound(Printable):

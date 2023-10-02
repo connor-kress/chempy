@@ -1,7 +1,5 @@
+from ..data import  LEFT_DELS, RIGHT_DELS
 from ..element import Element
-
-LEFT_DELS = ['(', '[', '{']
-RIGHT_DELS = [')', ']', '}']
 
 
 def tokenize_string(compound_string: str) -> list[Element | str | int]:

@@ -1,11 +1,9 @@
+from ..data import  LEFT_DELS, RIGHT_DELS
 from ..element import Element
-
-LEFT_DELS = ['(', '[', '{']
-RIGHT_DELS = [')', ']', '}']
 
 
 def get_closing_index(start: int, l_del: str,
-                        tokens: list[Element | str | int]) -> int:
+                      tokens: list[Element | str | int]) -> int:
     """Returns the closing index of an opened delimeter."""
     r_del = RIGHT_DELS[LEFT_DELS.index(l_del)]
     count = 0
