@@ -68,8 +68,12 @@ class Compound(Printable):
             if isinstance(token, Element):
                 string_frags.append(token.latex())
             elif token in LEFT_DELS:
-                string_frags.append(fr'\!\left\{token}' if token == '{'
-                                    else fr'\!\left{token}')
+                if tokens and tokens[-1] in LEFT_DELS:
+                    string_frags.append(fr'\left\{token}' if token == '{'
+                                        else fr'\left{token}')
+                else:
+                    string_frags.append(fr'\!\left\{token}' if token == '{'
+                                        else fr'\!\left{token}')
             elif token in RIGHT_DELS:
                 string_frags.append(fr'\right\{token}' if token == '}'
                                     else fr'\right{token}')
@@ -84,12 +88,6 @@ class Compound(Printable):
                 raise Exception('Unknown error.')
         return ''.join(reversed(string_frags))
 
-        # element_strings = [
-        #     element.latex(count)
-        #     for element, count in self.elements.items()
-        # ]
-        # return ''.join(element_strings)
-    
     def copy(self) -> Self:
         return self.__class__(self.elements.copy(), self.string)
 
