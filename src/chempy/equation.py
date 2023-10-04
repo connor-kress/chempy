@@ -1,11 +1,13 @@
 """
-TODO: Make `extended` keep coefficient data.
+TODO: Make `extended` try the abstracted extension and then `.balance`
+before using the current method for better answers.
 """
 
 from .printable import Printable
 from .utils import (
     solve,
     tokenize_string,
+    CompoundCounter,
 )
 from .compound import Compound
 from typing import Self
@@ -15,40 +17,37 @@ import numpy as np
 class Equation(Printable):
     def __init__(
             self,
-            reactants: list[Compound],
-            products: list[Compound],
-            coefficients: list[int] = None,
+            reactants: CompoundCounter[Compound],
+            products: CompoundCounter[Compound],
         ) -> None:
-        """Constructs a chemical equation with or without coefficients."""
+        """Constructs a chemical equation from `reactants` and `products`."""
+        if not isinstance(reactants, CompoundCounter):
+            raise TypeError('Parameters `reactants` and `products` to '
+                            '`Equation.__init__` must be `CompoundCounter`s, '
+                            f'not `{reactants.__class__.__name__}`s.')
+        elif not isinstance(products, CompoundCounter):
+            raise TypeError('Parameters `reactants` and `products` to '
+                            '`Equation.__init__` must be `CompoundCounter`s, '
+                            f'not `{products.__class__.__name__}`s.')
         self.reactants = reactants
         self.products = products
-        self.coefficients = coefficients if coefficients is not None else [
-            1 for _ in range(len(self.reactants) + len(self.products))
-        ]
     
     def __str__(self) -> str:
-        return (
-            ' + '.join([
-                f'{coef}({comp})' if coef != 1 else str(comp)
-                for comp, coef in zip(
-                    self.reactants, self.coefficients[:len(self.reactants)]
-                )
-            ])
-            + ' -> '
-            + ' + '.join([
-                f'{coef}({comp})' if coef != 1 else str(comp)
-                for comp, coef in zip(
-                    self.products, self.coefficients[len(self.reactants):]
-                )
-            ])
-        )
+        reactants_string = ' + '.join([
+            f'{coef}({comp})' if coef != 1 else str(comp)
+            for comp, coef in self.reactants.items()
+        ])
+        products_string = ' + '.join([
+            f'{coef}({comp})' if coef != 1 else str(comp)
+            for comp, coef in self.products.items()
+        ])
+        return reactants_string + ' -> ' + products_string
 
     def __repr__(self) -> str:
         return f"""
             {self.__class__.__name__}(
                 {self.reactants},
                 {self.products},
-                {self.coefficients},
             )
         """
     
@@ -56,13 +55,11 @@ class Equation(Printable):
         """Returns a LaTeX string representation of the equation."""
         reactant_strs = [
             fr'{coef}\,{comp.latex()}' if coef != 1 else comp.latex()
-            for comp, coef in zip(self.reactants,
-                                  self.coefficients[:len(self.reactants)])
+            for comp, coef in self.reactants.items()
         ]
         product_strs = [
             fr'{coef}\,{comp.latex()}' if coef != 1 else comp.latex()
-            for comp, coef in zip(self.products,
-                                  self.coefficients[len(self.reactants):])
+            for comp, coef in self.products.items()
         ]
         return '+'.join(reactant_strs)\
             + r'\rightarrow'\
@@ -70,9 +67,8 @@ class Equation(Printable):
     
     def copy(self) -> Self:
         return self.__class__(
-            [comp.copy() for comp in self.reactants],
-            [comp.copy() for comp in self.products],
-            self.coefficients.copy(),
+            self.reactants.copy(),
+            self.products.copy(),
         )
     
     def _set_self(self, new_self: Self) -> None:
@@ -82,10 +78,51 @@ class Equation(Printable):
         self.reactants = new_self.reactants
         self.products = new_self.products
         self.coefficients = new_self.coefficients
+    
+    def __mul__(self, other: int) -> Self:
+        """Returns an `Equation` with the coefficients of `self`
+        multiplied by an integer.
+        """
+        if not isinstance(other, int):
+            raise TypeError('`Equation`s can only be multiplied by '
+                            f'integers, not `{other.__class__.__name__}`s.')
+        reactants = self.reactants * other
+        products = self.products * other
+        return self.__class__(reactants, products)
 
-    def extended(self, other: Self) -> Self:
+    def __add__(self, other: Self) -> Self:
+        """Returns an addition of two `Equation`s in parallel."""
+        if not isinstance(other, Equation):
+            raise TypeError('`Equation`s can only be added to other '
+                            f'`Equation`s, not `{other.__class__.__name__}`s.')
+        reactants = self.reactants + other.reactants
+        products = self.products + other.products
+        return self.__class__(reactants, products)
+
+    def _max_mul_in_reactants(self, compounds: CompoundCounter) -> int:
+        """Returns the maximum multiple of `compounds` contained
+        within `self.reactants`.
+        """
+        return int(min([
+            self.reactants[comp] / coef
+            for comp, coef in compounds.items()
+        ]))
+
+    def _max_mul_in_products(self, compounds: CompoundCounter) -> int:
+        """Returns the maximum multiple of `compounds` contained
+        within `self.products`.
+        """
+        return int(min([
+            self.products[comp] / coef
+            for comp, coef in compounds.items()
+        ]))
+
+    def extended(self, other: Self | list[Self]) -> Self:
         """Returns an `Equation` representing an extension of `self` by
         applying the reaction described in `other` to the products of `self`.
+
+        If a list of `Equation`s is passed, they will each be applied in the
+        order given.
 
         Examples
         --------
@@ -95,54 +132,42 @@ class Equation(Printable):
         >>> equation1.extended(equation2).balanced()
         H2O2 -> H2 + 2(O)
         """
-        if not isinstance(other, Equation):
-            raise TypeError('`Equation.extended` can only be passed '
-                            'other `Equation` instances.')
+        if not isinstance(other, (Equation, list)):
+            raise TypeError('`Equation.extended` can only be passed other '
+                            '`Equation` or `list[Equation] instances.')
         
-        total_reactants = set(self.reactants)
-        total_products = set(other.products)
-        intermediates = set(self.products).intersection(other.reactants)
-        total_reactants.update(set(other.reactants).difference(intermediates))
-        total_products.update(set(self.products).difference(intermediates))
+        if isinstance(other, list):
+            current = self.copy()
+            for equation in other:
+                current = current.extended(equation)
+            return current
+        
+        mul = self._max_mul_in_products(other.reactants)
+        intermediates = other.reactants * mul
+        missing_reactants = (other.reactants - intermediates).max(0)
+        reactants = self.reactants + missing_reactants
+        products = self.products + other.products*mul - intermediates
 
-        return self.__class__(list(total_reactants), list(total_products))
+        return self.__class__(reactants, products)
 
     def extend(self, other: Self) -> None:
         """A mutable version of `Equation.extended` that updates `self` to
         the extension of `self` and `other`.
         """
+        if not isinstance(other, (Equation, list)):
+            raise TypeError('`Equation.extend` can only be passed other '
+                            '`Equation` or `list[Equation] instances.')
         self._set_self(self.extended(other))
-    
-    def extended_all(self, equations: list[Self]) -> Self:
-        """Returns an `Equation` representing an extension of `self` by
-        applying the reaction described in each `Equation` of `equations`
-        in order.
-        """
-        current = self
-        for equation in equations:
-            current = current.extended(equation)
-        return current
-    
-    def extend_all(self, equations: list[Self]) -> None:
-        """A mutable version of `Equation.extended_all` that extends `self`
-        with each `Equation` in `equations`.
-        """
-        for equation in equations:
-            self.extend(equation)
 
     def is_balanced(self) -> bool:
         """"Returns `True` if the `Equation` is balanced else `False`."""
         reactants_vec = np.sum(np.array([
             comp.vector * coef
-            for comp, coef in zip(
-                self.reactants, self.coefficients[:len(self.reactants)]
-            )
+            for comp, coef in self.reactants.items()
         ]), axis=0)
         products_vec = np.sum(np.array([
             comp.vector * coef
-            for comp, coef in zip(
-                self.products, self.coefficients[len(self.reactants):]
-            )
+            for comp, coef in self.products.items()
         ]), axis=0)
 
         return np.allclose(reactants_vec, products_vec)
@@ -151,26 +176,36 @@ class Equation(Printable):
         """Asserts that `self` is balanced and returns `self`."""
         if not self.is_balanced():
             raise AssertionError(f'The equation {self} was not '
-                                 'balanced as asserted.')
+                                    'balanced as asserted.')
         return self
 
     def balance(self) -> None:
         """Finds the coefficients corresponding to the balanced `Equation`
         and writes them to `self.coefficients`.
         """
-        reactant_vecs = np.array([comp.vector for comp in self.reactants])
-        product_vecs = np.array([comp.vector for comp in self.products])
+        reactants = list(self.reactants.keys())
+        products = list(self.products.keys())
+        reactant_vecs = np.array([comp.vector for comp in reactants])
+        product_vecs = np.array([comp.vector for comp in products])
     
         system = np.hstack((reactant_vecs.T, -product_vecs.T))
-        self.coefficients = list(solve(system))
+        coefficients = solve(system)
+
+        reactant_coefs = coefficients[:len(reactants)]
+        product_coefs = coefficients[len(reactants):]
+        for reactant, coef in zip(reactants, reactant_coefs):
+            self.reactants[reactant] = coef
+        for product, coef in zip(products, product_coefs):
+            self.products[product] = coef
+        
         if not self.is_balanced():
             raise Exception(f'An equation was incorrectly balanced to {self}')
     
     def balanced(self) -> Self:
         """Returns a balanced version of `self`."""
-        new_equation = self.copy()
-        new_equation.balance()
-        return new_equation
+        equation = self.copy()
+        equation.balance()
+        return equation
     
     @classmethod
     def parse_from_string(cls, equation_string):
@@ -183,33 +218,31 @@ class Equation(Printable):
             raise ValueError('Invalid equation syntax. Seperate '
                              'reactants and products with "->".')
         
-        coefficients = []
-
-        reactants = []
+        reactants = CompoundCounter()
         for reactant_str in reactants_str.split('+'):
             first_token = tokenize_string(reactant_str)[0]
             if isinstance(first_token, int):
-                coefficients.append(first_token)
-                reactants.append(Compound.parse_from_string(
+                reactant = Compound.parse_from_string(
                     reactant_str.strip().removeprefix(str(first_token))
-                ))
+                )
+                reactants[reactant] += first_token
             else:
-                coefficients.append(1)
-                reactants.append(Compound.parse_from_string(reactant_str))
+                reactant = Compound.parse_from_string(reactant_str)
+                reactants[reactant] += 1
         
-        products = []
+        products = CompoundCounter()
         for product_str in products_str.split('+'):
             first_token = tokenize_string(product_str)[0]
             if isinstance(first_token, int):
-                coefficients.append(first_token)
-                products.append(Compound.parse_from_string(
+                product = Compound.parse_from_string(
                     product_str.strip().removeprefix(str(first_token))
-                ))
+                )
+                products[product] += first_token
             else:
-                coefficients.append(1)
-                products.append(Compound.parse_from_string(product_str))
+                product = Compound.parse_from_string(product_str)
+                products[product] += 1
 
-        return cls(reactants, products, coefficients)
+        return cls(reactants, products)
 
     @classmethod
     def parse_from_list(cls, equation_strings: list[str]) -> list[Self]:
