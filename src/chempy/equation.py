@@ -12,6 +12,7 @@ from .utils import (
 )
 from .compound import Compound
 from typing import Self
+from itertools import chain
 import numpy as np
 
 
@@ -105,7 +106,57 @@ class Equation(Printable):
     
     def __sub__(self, other: Self) -> Self:
         return self + -1*other
-
+    
+    def __truediv__(self, other: int) -> Self:
+        """Returns an `Equation` with the coefficients of `self`
+        divided by an integer.
+        """
+        if not isinstance(other, int):
+            raise TypeError('`Equation`s can only be multiplied by '
+                            f'integers, not `{other.__class__.__name__}`s.')
+        reactants = self.reactants / other
+        products = self.products / other
+        return self.__class__(reactants, products)
+    
+    def _get_max_coefficient(self) -> int:
+        """Returns the maximum integer that can be reduced out of
+        the coefficients of `self`.
+        """
+        return int(np.gcd.reduce([coef for coef in
+                                  chain(self.reactants.values(),
+                                        self.products.values())]))
+    
+    def reduced(self) -> Self:
+        """Returns a reduced coefficient version of `self`.
+        
+        Examples
+        --------
+        from chempy import Equation
+        >>> equation = Equation.parse_from_string('2H2O -> 2H2 + 2O')
+        >>> equation
+        2(H2O) -> 2(H2) + 2(O)
+        >>> equation.reduced()
+        H2O -> H2 + O
+        """
+        return self / self._get_max_coefficient()
+    
+    def reduce(self) -> None:
+        """A mutable version of `Equation.reduced` that updates `self` to
+        the reduced version of `self`.
+        """
+        self._set_self(self.reduced())
+    
+    def is_reduced(self) -> bool:
+        """"Returns `True` if the `Equation` is reduced else `False`."""
+        return self._get_max_coefficient() == 1
+    
+    def assert_reduced(self) -> Self:
+        """Asserts that `self` is reduced and returns `self`."""
+        if not self.is_reduced():
+            raise AssertionError(f'The equation {self} was not '
+                                    'reduced as asserted.')
+        return self
+    
     def _max_mul_in_reactants(self, compounds: CompoundCounter) -> int:
         """Returns the maximum multiple of `compounds` contained
         within `self.reactants`.
@@ -182,7 +233,7 @@ class Equation(Printable):
         equation = self.__class__(reactants, products)
         if self.is_balanced() and other.is_balanced():
             assert equation.is_balanced()
-        return equation
+        return equation.reduced()
 
     def extend(self, other: Self) -> None:
         """A mutable version of `Equation.extended` that updates `self` to

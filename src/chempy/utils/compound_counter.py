@@ -47,17 +47,27 @@ class CompoundCounter(dict):
                             'from `CompoundCounter`.')
         return self + -1*other
 
-    def __mul__(self, other: int) -> Self:
-        if not isinstance(other, int):
+    def __mul__(self, other: int | float) -> Self:
+        if not isinstance(other, (int, float)):
             raise TypeError('Cannot multiply `CompoundCounter` with '
                             f'`{other.__class__.__name__}`.')
         if other == 0:
             return self.__class__()
-        return self.__class__({comp: count*other for comp, count
-                               in self.items()})
+        data = {comp: count*other for comp, count in self.items()}
+        if not np.all([np.isclose(n, np.round(n)) for n in data.values()]):
+            raise TypeError('Cannot multiply `CompoundCounter` with a '
+                            "float that isn't near an integer.")
+        return self.__class__({comp: int(np.round(count)) for comp, count in
+                               data.items() if int(np.round(count)) != 0})
     
     def __rmul__(self, other: int) -> Self:
         return self * other
+    
+    def __truediv__(self, other: int) -> Self:
+        if not isinstance(other, int):
+            raise TypeError('Cannot divide `CompoundCounter` by '
+                            f'`{other.__class__.__name__}`.')
+        return self * (1/other)
     
     def __abs__(self) -> Self:
         return self.__class__({comp: abs(count) for comp, count
