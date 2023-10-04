@@ -4,6 +4,7 @@ before using the current method for better answers.
 """
 
 from .printable import Printable
+from .errors import BalancingError
 from .utils import (
     solve,
     tokenize_string,
@@ -148,13 +149,40 @@ class Equation(Printable):
                 current = current.extended(equation)
             return current
         
+        reactants_set = set(self.reactants)
+        products_set = set(other.products)
+        intermediates = set(self.products).intersection(other.reactants)
+        reactants_set.update(set(other.reactants).difference(intermediates))
+        products_set.update(set(self.products).difference(intermediates))
+        reactants = CompoundCounter({comp: 1 for comp in reactants_set})
+        products = CompoundCounter({comp: 1 for comp in products_set})
+
+        equation = self.__class__(reactants, products)
+        try:
+            equation.balance()
+        except BalancingError:
+            pass
+        else:
+            return equation
+        
         mul = self._max_mul_in_products(other.reactants)
         intermediates = other.reactants * mul
         missing_reactants = (other.reactants - intermediates).max(0)
         reactants = self.reactants + missing_reactants
-        products = self.products + other.products*mul - intermediates
-
-        return self.__class__(reactants, products)
+        if intermediates:
+            products = self.products + other.products*mul - intermediates
+        else:
+            products = self.products + other.products*(1+mul)
+        # print(f'mul = {mul}')
+        # print(f'intermediates = {intermediates}')
+        # print(f'missing_reactants = {missing_reactants}')
+        # print(f'reactants = {reactants}')
+        # print(f'products = {products}')
+        
+        equation = self.__class__(reactants, products)
+        if self.is_balanced() and other.is_balanced():
+            assert equation.is_balanced()
+        return equation
 
     def extend(self, other: Self) -> None:
         """A mutable version of `Equation.extended` that updates `self` to
