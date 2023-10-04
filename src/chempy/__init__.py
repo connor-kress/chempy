@@ -11,6 +11,7 @@ from .utils import (
     get_closing_index,
     tokenize_string,
     parse_elements_from_tokens,
+    CompoundCounter,
 )
 from .element import Element
 from .compound import Compound
@@ -27,6 +28,7 @@ __all__ = [
     get_closing_index,
     tokenize_string,
     parse_elements_from_tokens,
+    CompoundCounter,
     Element,
     Compound,
     Equation,
