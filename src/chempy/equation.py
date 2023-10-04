@@ -101,6 +101,9 @@ class Equation(Printable):
         reactants = self.reactants + other.reactants
         products = self.products + other.products
         return self.__class__(reactants, products)
+    
+    def __sub__(self, other: Self) -> Self:
+        return self + -1*other
 
     def _max_mul_in_reactants(self, compounds: CompoundCounter) -> int:
         """Returns the maximum multiple of `compounds` contained
