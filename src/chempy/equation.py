@@ -89,6 +89,9 @@ class Equation(Printable):
         reactants = self.reactants * other
         products = self.products * other
         return self.__class__(reactants, products)
+    
+    def __rmul__(self, other: int) -> Self:
+        return self * other
 
     def __add__(self, other: Self) -> Self:
         """Returns an addition of two `Equation`s in parallel."""
