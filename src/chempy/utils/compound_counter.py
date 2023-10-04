@@ -1,5 +1,6 @@
 from ..compound import Compound
 from typing import Self
+import numpy as np
 
 
 class CompoundCounter(dict):
@@ -18,9 +19,14 @@ class CompoundCounter(dict):
         return super().__getitem__(compound)
     
     def __setitem__(self, compound: Compound, count: int) -> None:
-        if not isinstance(compound, Compound) or not isinstance(count, int):
+        if isinstance(count, np.int_):
+            count = int(count)
+        if not isinstance(compound, Compound):
             raise TypeError('`CompoundCounter` only accepts `Compound`s as '
-                            'keys and integers as values.')
+                            f'keys, not `{compound.__class__.__name__}`s.')
+        if not isinstance(count, int):
+            raise TypeError('`CompoundCounter` only accepts integers as '
+                            f'values, not `{count.__class__.__name__}`s.')
         if count != 0:
             super().__setitem__(compound, count)
         elif compound in self.keys():
