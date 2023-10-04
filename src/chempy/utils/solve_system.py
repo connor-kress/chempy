@@ -1,3 +1,9 @@
+"""
+Rank: https://numpy.org/doc/stable/reference/generated/numpy.linalg.matrix_rank.html
+Solver: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.lsq_linear.html
+Alternative: https://stackoverflow.com/questions/9878558/scipy-optimize-leastsq-with-bound-constraints
+"""
+
 from ..errors import BalancingError
 from .gcd import float_gcd
 from scipy.linalg import null_space
