@@ -12,8 +12,9 @@ from .data import (
 from .utils import (
     get_closing_index,
     tokenize_string,
-    parse_elements_from_tokens
+    parse_elements_from_tokens,
 )
+from .utils.no_auto_init import NoAutoInitAndABCMeta
 from .element import Element
 from .printable import Printable
 from collections import Counter
@@ -21,7 +22,17 @@ from typing import Self
 import numpy as np
 
 
-class Compound(Printable):
+class Compound(Printable, metaclass=NoAutoInitAndABCMeta):
+    def __new__(cls, *args, **kwargs) -> Self:
+        if len(args) == 1:
+            if isinstance(args[0], str):
+                return cls.parse_from_string(args[0])
+            elif isinstance(args[0], (list, tuple)):
+                return cls.parse_from_list(args[0])
+        obj = super().__new__(cls)
+        obj.__init__(*args, **kwargs)
+        return obj
+
     def __init__(self, elements: Counter[Element], string: str = None):
         """Constructs a compound from a number of `Element`s and an optional
         `string` to refer to the `Compound` by.

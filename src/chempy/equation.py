@@ -9,6 +9,7 @@ from .utils import (
     solve,
     tokenize_string,
     CompoundCounter,
+    NoAutoInitAndABCMeta,
 )
 from .compound import Compound
 from typing import Self
@@ -16,7 +17,18 @@ from itertools import chain
 import numpy as np
 
 
-class Equation(Printable):
+class Equation(Printable, metaclass=NoAutoInitAndABCMeta):
+
+    def __new__(cls, *args, **kwargs) -> Self:
+        if len(args) == 1:
+            if isinstance(args[0], str):
+                return cls.parse_from_string(args[0])
+            elif isinstance(args[0], (list, tuple)):
+                return cls.parse_from_list(args[0])
+        obj = super().__new__(cls)
+        obj.__init__(*args, **kwargs)
+        return obj
+
     def __init__(
             self,
             reactants: CompoundCounter[Compound],
@@ -293,7 +305,7 @@ class Equation(Printable):
         return equation
     
     @classmethod
-    def parse_from_string(cls, equation_string):
+    def parse_from_string(cls, equation_string: str) -> Self:
         """Parses a given string into an `Equation` instance."""
         if '->' in equation_string:
             reactants_str, products_str = equation_string.split('->')

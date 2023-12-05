@@ -5,8 +5,7 @@ import sys
 def main() -> None:
     if len(sys.argv) != 2:
         print('Please provide one argument in the form "A + B -> C".')
-        return
-    
+        sys.exit(1)
     equation_str = sys.argv[1]
     try:
         equation = Equation.parse_from_string(equation_str)
